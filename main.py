@@ -51,7 +51,7 @@ def get_controlled_vehicles(route_filename, connection_info, \
     # vehicle_list = generator.generate_vehicles(num_controlled_vehicles, num_uncontrolled_vehicles, \
     #     pattern, route_filename, connection_info.net_filename)
 
-    vehicle_list = make_Trips_File(connection_info,"test1", connection_info.net_filename, num_controlled_vehicles, num_uncontrolled_vehicles)
+    vehicle_list = make_Trips_File(connection_info,"test3", connection_info.net_filename, num_controlled_vehicles, num_uncontrolled_vehicles)
     # generate_Random_Vehicles(num_uncontrolled_vehicles, connection_info.net_filename, route_filename)
 
     for vehicle in vehicle_list:
@@ -59,7 +59,7 @@ def get_controlled_vehicles(route_filename, connection_info, \
 
     return vehicle_dict
 
-def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_vehicles,start_edges=[],end_edges=[],dependencies=[],use_random_trips=True,maximum_release_time=400):
+def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_vehicles,start_edges=[],end_edges=[],dependencies=[],use_random_trips=True,maximum_release_time=600):
     print("Starting")
     if num_trips == -1:
         return
@@ -213,22 +213,23 @@ def run_simulation(scheduler, vehicles):
     print("Average timespan: {}, total vehicle number: {}".format(str(total_time/end_number),\
         str(end_number)))
     print(str(deadlines_missed) + ' deadlines missed.')
-    # print(init_connection_info.vehicle_states)
-    states2Csv(init_connection_info.vehicle_states, 1)
+
+    # states2Csv(init_connection_info.vehicle_states, 3)
     # report("./configurations", 1, 1, "run_id_1", "official")
 
 def states2Csv (vehicle_states, Round_name, time=0) :
     generic_header = 'traffic_density'
-    specific_headers = ['step', 'vehicle_id', 'edge_ind', 'next_dir', 'straight', 'turn_around', 
-                        'slight_right', 'right', 'slight_left', 'left']
-    headers= specific_headers + [generic_header]
+    specific_headers = ['step', 'vehicle_id', 'edge_ind', 'next_dir', 'destination_ind', 'straight', 'turn_around', 
+                        'slight_right', 'right', 'slight_left', 'left'] #11
+
+    headers= specific_headers + [generic_header] * (len(vehicle_states[0][0]) - 11)
     temp = []
 
     for vehicle in vehicle_states:
         arr = vehicle[0]
         temp.append(arr)
     
-    with open('./Data/vehicle_states.csv', 'w', newline='') as f:
+    with open('./Data/vehicle_states_'+str(Round_name)+'.csv', 'w', newline='') as f:
         write = csv.writer(f)
         write.writerow(headers)
         write.writerows(temp)
@@ -251,7 +252,7 @@ if __name__ == "__main__":
     route_file_node = dom.getElementsByTagName('route-files')
     route_file_attr = route_file_node[0].attributes
     route_file = "./configurations/"+route_file_attr['value'].nodeValue
-    vehicles = get_controlled_vehicles(route_file, init_connection_info, 150, 50)
+    vehicles = get_controlled_vehicles(route_file, init_connection_info, 600, 50)
     #print the controlled vehicles generated
     for vid, v in vehicles.items():
         print("id: {}, destination: {}, start time:{}, deadline: {};".format(vid, \

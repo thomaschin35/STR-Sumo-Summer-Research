@@ -41,8 +41,8 @@ class Vehicle_info:
             self.destinations[vid] = (x.getAttribute("arrivalLane"))[:-2]
             self.start_times[vid] = x.getAttribute("depart")
             self.origins[vid] = (x.getAttribute("departLane"))[:-2]
-            print(type(vid))
-            print(self.deadlines[int(vid)])
+            print(vid)
+            # print(self.deadlines[int(vid)])
             self.vehicle_list.append(Vehicle(str(vid), self.destinations[vid], self.start_times[vid], self.deadlines[vid]))
 
         

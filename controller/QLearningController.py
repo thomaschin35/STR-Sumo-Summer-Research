@@ -87,6 +87,6 @@ class QLearningPolicy(RouteController):
             state.append(density)
 
         state = np.reshape(state, [1, len(state)]) #2D array with 1 row and as many columns as state
-        #state = [[edge index, 1, 0 ,0 ,1, 1, 1, density]
+        #state = [[edge index, 1, 0 ,0 ,1, 1, 1, density, ... (density of every other edge)]
         print(state.shape)
         return state
