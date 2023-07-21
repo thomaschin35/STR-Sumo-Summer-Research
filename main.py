@@ -49,17 +49,17 @@ def get_controlled_vehicles(route_filename, connection_info, \
 
     # list of target vehicles is returned by generate_vehicles
     # vehicle_list = generator.generate_vehicles(num_controlled_vehicles, num_uncontrolled_vehicles, \
-    #     pattern, route_filename, connection_info.net_filename)
-
-    vehicle_list = make_Trips_File(connection_info,"test3", connection_info.net_filename, num_controlled_vehicles, num_uncontrolled_vehicles)
+    #     pattern,route_filename, connection_info.net_filename)
+    round = "qtest6"
+    vehicle_list = make_Trips_File(connection_info,round, connection_info.net_filename, num_controlled_vehicles, num_uncontrolled_vehicles)
     # generate_Random_Vehicles(num_uncontrolled_vehicles, connection_info.net_filename, route_filename)
-
+    print("running: " + round)
     for vehicle in vehicle_list:
         vehicle_dict[str(vehicle.vehicle_id)] = vehicle
 
     return vehicle_dict
 
-def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_vehicles,start_edges=[],end_edges=[],dependencies=[],use_random_trips=True,maximum_release_time=600):
+def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_vehicles,start_edges=[],end_edges=[],dependencies=[],use_random_trips=True,maximum_release_time=50):
     print("Starting")
     if num_trips == -1:
         return
@@ -89,7 +89,7 @@ def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_ve
             end_edges = []
             edges = net.getEdges()
             dependencies = {}
-            print("I am in")
+            # print("I am in")
             for current_edge in edges:
                 current_edge_id = current_edge.getID()
                 edge_lengths[current_edge_id]= current_edge.getLength() 
@@ -165,19 +165,6 @@ def make_Trips_File(connection_info,Round_name,net_file,num_trips, num_random_ve
         vehicle_list = Vehicle_info(Round_name).vehicle_list
         return vehicle_list
         
-def generate_Random_Vehicles(num_random_vehicles, netfile, target_xml_file):
-    #calculate the density of vehicles accordingly
-    latest_release_time = 50.0 #a constant number for the latest release time of all vehicles
-    num_random_vehicles *= 2 # this is done to compensate the loss when generating using scripts. Need to solve this later.
-    density =  latest_release_time / float(num_random_vehicles)
-    density = int(density * 100)/100.0
-    #invoke randomTrips.py
-    print("net_xml_file:", netfile)
-    print("what's our target",target_xml_file)
-    command_str = "python randomTrips.py -n "+netfile+" -e 50 -p "+str(density) +" -r "+target_xml_file
-    if os.system(command_str) != 0:
-        print("ERROR: Failed to invoke randomTrips.py.")
-        return None
 
 
 def data2Csv_Deadlines(deadlines_pushing,Round_name=""):
@@ -252,7 +239,7 @@ if __name__ == "__main__":
     route_file_node = dom.getElementsByTagName('route-files')
     route_file_attr = route_file_node[0].attributes
     route_file = "./configurations/"+route_file_attr['value'].nodeValue
-    vehicles = get_controlled_vehicles(route_file, init_connection_info, 600, 50)
+    vehicles = get_controlled_vehicles(route_file, init_connection_info, 10, 50)
     #print the controlled vehicles generated
     for vid, v in vehicles.items():
         print("id: {}, destination: {}, start time:{}, deadline: {};".format(vid, \

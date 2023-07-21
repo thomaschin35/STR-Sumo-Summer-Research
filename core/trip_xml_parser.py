@@ -27,11 +27,11 @@ class Vehicle_info:
 
         for x in range(len(vid)):
             self.deadlines[vid[x]]=DL[x]
-            print (vid[x])
-            print (type(vid[x]))
+            # print (vid[x])
+            # print (type(vid[x]))
 
         xml_file = minidom.parse("./configurations/Rounds/"+Round_name+'/static_trip.rou.xml')
-        trips_file = minidom.parse("./configurations/trips.trips.xml") 
+        trips_file = minidom.parse("./configurations/Rounds/"+Round_name+"/trips.trips.xml") 
         trips_info = trips_file.getElementsByTagName('tripinfo')
         vehicle_alts = xml_file.getElementsByTagName('trip')
         for x in trips_info:
@@ -41,7 +41,7 @@ class Vehicle_info:
             self.destinations[vid] = (x.getAttribute("arrivalLane"))[:-2]
             self.start_times[vid] = x.getAttribute("depart")
             self.origins[vid] = (x.getAttribute("departLane"))[:-2]
-            print(vid)
+            # print(vid)
             # print(self.deadlines[int(vid)])
             self.vehicle_list.append(Vehicle(str(vid), self.destinations[vid], self.start_times[vid], self.deadlines[vid]))
 

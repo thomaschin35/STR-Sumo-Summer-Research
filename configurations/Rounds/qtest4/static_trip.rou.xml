@@ -1,0 +1,153 @@
+<?xml version="1.0" ?>
+<routes xmlns:xsi="&quot;http://www.w3.org/2001/XMLSchema-instance&quot;" xsi:noNamespaceSchemaLocation="&quot;http://sumo.dlr.de/xsd/routes_file.xsd&quot;">
+	<vehicle id="0" depart="1">
+		<route edges="423487302#0"/>
+	</vehicle>
+	<vehicle id="1" depart="2">
+		<route edges="268118792#0"/>
+	</vehicle>
+	<vehicle id="2" depart="2">
+		<route edges="597602686#9"/>
+	</vehicle>
+	<vehicle id="3" depart="3">
+		<route edges="423487302#0"/>
+	</vehicle>
+	<vehicle id="4" depart="3">
+		<route edges="954632729"/>
+	</vehicle>
+	<vehicle id="5" depart="4">
+		<route edges="962896467#3"/>
+	</vehicle>
+	<vehicle id="6" depart="5">
+		<route edges="423487450#1"/>
+	</vehicle>
+	<vehicle id="7" depart="5">
+		<route edges="746893258#0"/>
+	</vehicle>
+	<vehicle id="8" depart="6">
+		<route edges="442372090-AddedOffRampEdge"/>
+	</vehicle>
+	<vehicle id="9" depart="6">
+		<route edges="908435482#0"/>
+	</vehicle>
+	<vehicle id="10" depart="6">
+		<route edges="1055874086#0"/>
+	</vehicle>
+	<vehicle id="11" depart="7">
+		<route edges="423487359#0"/>
+	</vehicle>
+	<vehicle id="12" depart="7">
+		<route edges="1128434406#0"/>
+	</vehicle>
+	<vehicle id="13" depart="7">
+		<route edges="981165359#0"/>
+	</vehicle>
+	<vehicle id="14" depart="10">
+		<route edges="981165357#0"/>
+	</vehicle>
+	<vehicle id="15" depart="12">
+		<route edges="423505996#0"/>
+	</vehicle>
+	<vehicle id="16" depart="13">
+		<route edges="-755435065#2"/>
+	</vehicle>
+	<vehicle id="17" depart="15">
+		<route edges="601725848"/>
+	</vehicle>
+	<vehicle id="18" depart="17">
+		<route edges="15389730#22"/>
+	</vehicle>
+	<vehicle id="19" depart="18">
+		<route edges="968816560"/>
+	</vehicle>
+	<vehicle id="20" depart="23">
+		<route edges="1081590611-AddedOffRampEdge"/>
+	</vehicle>
+	<vehicle id="21" depart="23">
+		<route edges="423487294"/>
+	</vehicle>
+	<vehicle id="22" depart="23">
+		<route edges="691318132#0"/>
+	</vehicle>
+	<vehicle id="23" depart="24">
+		<route edges="962896467#0"/>
+	</vehicle>
+	<vehicle id="24" depart="25">
+		<route edges="423506027-AddedOffRampEdge"/>
+	</vehicle>
+	<vehicle id="25" depart="27">
+		<route edges="724861791"/>
+	</vehicle>
+	<vehicle id="26" depart="28">
+		<route edges="104727118#0"/>
+	</vehicle>
+	<vehicle id="27" depart="29">
+		<route edges="-15458116"/>
+	</vehicle>
+	<vehicle id="28" depart="29">
+		<route edges="295292533"/>
+	</vehicle>
+	<vehicle id="29" depart="31">
+		<route edges="854649126"/>
+	</vehicle>
+	<vehicle id="30" depart="31">
+		<route edges="962816052#0"/>
+	</vehicle>
+	<vehicle id="31" depart="31">
+		<route edges="423487258#0"/>
+	</vehicle>
+	<vehicle id="32" depart="32">
+		<route edges="290026885"/>
+	</vehicle>
+	<vehicle id="33" depart="34">
+		<route edges="-15366554#7"/>
+	</vehicle>
+	<vehicle id="34" depart="34">
+		<route edges="978715535#2"/>
+	</vehicle>
+	<vehicle id="35" depart="35">
+		<route edges="423487450#0"/>
+	</vehicle>
+	<vehicle id="36" depart="35">
+		<route edges="1055874086#2"/>
+	</vehicle>
+	<vehicle id="37" depart="35">
+		<route edges="981165357#0"/>
+	</vehicle>
+	<vehicle id="38" depart="38">
+		<route edges="423487438#0"/>
+	</vehicle>
+	<vehicle id="39" depart="40">
+		<route edges="597528981#0"/>
+	</vehicle>
+	<vehicle id="40" depart="41">
+		<route edges="15302679"/>
+	</vehicle>
+	<vehicle id="41" depart="43">
+		<route edges="423506029#0"/>
+	</vehicle>
+	<vehicle id="42" depart="43">
+		<route edges="968816561#0"/>
+	</vehicle>
+	<vehicle id="43" depart="43">
+		<route edges="-846855219#3"/>
+	</vehicle>
+	<vehicle id="44" depart="44">
+		<route edges="1081590614#0"/>
+	</vehicle>
+	<vehicle id="45" depart="45">
+		<route edges="442372093#1"/>
+	</vehicle>
+	<vehicle id="46" depart="45">
+		<route edges="423505999#3"/>
+	</vehicle>
+	<vehicle id="47" depart="47">
+		<route edges="597528970#0"/>
+	</vehicle>
+	<vehicle id="48" depart="47">
+		<route edges="954632488#0"/>
+	</vehicle>
+	<vehicle id="49" depart="49">
+		<route edges="968816562#0"/>
+	</vehicle>
+</routes>

@@ -1,8 +1,8 @@
 <configuration>
 
 <input>
-<net-file value="osm.net.xml"/>
-<route-files value="./Rounds/test3/static_trip.rou.xml"/>
+<net-file value="official.net.xml"/>
+<route-files value="./Rounds/qtest6/static_trip.rou.xml"/>
 </input>
 <output> <netstate-dump value="test_dump.xml" />
 <summary value="summary.xml"/>   

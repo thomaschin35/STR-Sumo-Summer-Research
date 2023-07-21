@@ -84,6 +84,7 @@ class StrSumo:
                         if current_edge not in self.connection_info.edge_index_dict.keys():
                             continue
                         elif current_edge == self.controlled_vehicles[vehicle_id].destination:
+                            print("I AM HERE " + vehicle_id + " step:" + str(step))
                             continue
 
                         # print("{} now on: {}, records on {}; {} ".format(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].current_edge, current_edge!=self.controlled_vehicles[vehicle_id].current_edge))
@@ -119,6 +120,7 @@ class StrSumo:
                             deadlines_missed.append(vehicle_id)
                             miss = True
                         end_number += 1
+                        print("current step ", step)
                         print("Vehicle {} reaches the destination: {}, timespan: {}, deadline missed: {}"\
                             .format(vehicle_id, arrived_at_destination, time_span, miss))
                         #if not arrived_at_destination:

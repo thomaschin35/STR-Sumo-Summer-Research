@@ -4,7 +4,7 @@ import numpy as np
 import traci
 import math
 import copy
-
+import sumolib
 
 class DijkstraPolicy(RouteController):
 
@@ -55,9 +55,9 @@ class DijkstraPolicy(RouteController):
                 #print('{}:{}------------'.format(current_edge, current_distance))
             #current_edge = vehicle.current_edge
             if len(path_lists[vehicle.destination]) == 0: 
-                state = self.getState(vehicle.current_edge, vehicle.destination, vehicle.vehicle_id, step)
+                state = self.getState(vehicle.current_edge, vehicle.destination, vehicle.vehicle_id, step, connection_info.net_filename)
             else: 
-                state = self.getState(vehicle.current_edge, vehicle.destination, vehicle.vehicle_id, step, path_lists[vehicle.destination][0])
+                state = self.getState(vehicle.current_edge, vehicle.destination, vehicle.vehicle_id, step, connection_info.net_filename, path_lists[vehicle.destination][0])
             vehicle_states.append(state)
             # print(vehicle.vehicle_id)
             # print(path_lists[vehicle.destination])
@@ -68,14 +68,15 @@ class DijkstraPolicy(RouteController):
             # print(local_targets[vehicle.vehicle_id])
         return local_targets, vehicle_states
     
-    def getState(self, edge_now, destination, vid, step, right_direction="NaN"):
+    def getState(self, edge_now, destination, vid, step, net_file, right_direction="NaN"):
         en = edge_now
         state = []
         #include final location?
-        state.append(step)
-        state.append(vid)
+        # state.append(step)
+        # state.append(vid)
+
         state.append(self.connection_info.edge_index_dict[en]) #getting the current edge index
-        state.append(right_direction)
+        # state.append(right_direction)
         state.append(self.connection_info.edge_index_dict[destination])
         # state.append()
         for c in self.direction_choices:

@@ -51,9 +51,9 @@ class ConnectionInfo:
         edge_index = 0
 
         edges = net.getEdges()
-
         # collect edge information into dictionaries
         for current_edge in edges:
+            
             current_edge_id = current_edge.getID()
 
             # add edge to edge list if it allows passenger vehicles
@@ -84,3 +84,4 @@ class ConnectionInfo:
                 for connection in connections:
                     direction = connection.getDirection()
                     self.outgoing_edges_dict[current_edge_id][direction] = current_outgoing_edge.getID()
+
