@@ -2,13 +2,15 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from collections import deque
+
+from numba import jit, cuda
 import random
 
 class Agent:
     def __init__(self, state_size, action_size, number_of_vehicles):
         self.gamma = 0.9
-        self.epsilon = 0.95
-        self.epsilon_decay = 0.99992
+        self.epsilon = 1.0
+        self.epsilon_decay = 0.99995
         self.epsilon_min = 0.01
         self.learning_rate = 0.001
         
@@ -48,7 +50,7 @@ class Agent:
         opt = keras.optimizers.RMSprop(learning_rate=self.learning_rate, momentum=0.9)
         main_model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return main_model
-
+    # @jit(target_backend='cuda')
     def act(self, states, eps):
         
         if (states):
@@ -56,13 +58,13 @@ class Agent:
             states_temp = np.array(list(states.values()), dtype=np.float32)
             state_vals = states_temp[: , index ] # [1,0,1,1,0,0]
             #EPSILON EXPLORATION APPROACH
-            if eps < 5 or np.random.rand() <= self.epsilon: 
+            if eps < 4 or np.random.rand() <= self.epsilon: 
                 arr = self.generate_random_array(len(states))#2D arrow of vehicles, and random decision
                 state_vals = state_vals.reshape(arr.shape)
                 arr = arr - 10000 * (1-state_vals)
                 return arr
             # GREEDY ACTIONS
-            print("actually predicting")
+            # print("actually predicting")
             act_values = self.main_model.predict(states_temp, verbose=0)
             state_vals = state_vals.reshape(act_values.shape)
             mod_values = act_values - 10000 * (1 - state_vals)
@@ -72,7 +74,7 @@ class Agent:
             return mod_values
         else:
             return {}
-    
+    # @jit(target_backend='cuda')
     def train(self,episode):
         #State/nextstate = Dict, {vid: "state"}
         #action = 2d array (#vehicles, 6 columns. probability that they pick the direction)
@@ -82,7 +84,7 @@ class Agent:
         # If replay buffer is full, then train the main_model
         if (len(self.replayBuffer) > self.batchReplayBufferSize) : 
 
-            print("training!")
+            # print("training!")
             randomSampleBatch = random.sample(self.replayBuffer, self.batchReplayBufferSize)
             currentStateBatch = [np.zeros(self.state_size)]
             #(index: state values)

@@ -52,12 +52,13 @@ for episode in range(max_episodes):
     #     states = next_states
     #     if done:
     #         break
-    # env_test.close()
+    # env_test.close()  
     #grabbing awards for stats
     overall_reward = np.array(list(overall_reward.values()))
     avg_reward = np.mean(overall_reward)
     rewards_history.append(avg_reward)
     print("Episode:", episode)
+    print("Rewards: ", rewards)
     print("Average reward per episode:", avg_reward)
     print("Epsilon: " + str(agent.epsilon))
 eps = np.arange(0, max_episodes)
