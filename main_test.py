@@ -7,7 +7,7 @@ import csv
 env_train = se.SumoEnv(10, gui = False)
 env_test = se.SumoEnv(10, gui = False)
 
-max_episodes = 500
+max_episodes = 750
 max_steps = 500
 num_actions = 6
 num_vehicles = 10

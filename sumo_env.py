@@ -4,7 +4,7 @@ import os
 import sys
 import random
 import math
-from numba import jit, cuda
+# from numba import jit, cuda
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -77,7 +77,7 @@ class SumoEnv:
             vehicle_ids = set(traci.vehicle.getIDList()) #ids are 0-9
             # print("")
             # print("vehicle_ids current: ", vehicle_ids)
-
+            
             arrived_at_destination = traci.simulation.getArrivedIDList()
 
             # store edge vehicle counts in connection_info.edge_vehicle_count
@@ -89,7 +89,7 @@ class SumoEnv:
             # print(vehicle_ids)
             i = 0
             for vehicle_id in vehicle_ids:
-                
+                # print("rewards ", rewards[vehicle_id])
                 if vehicle_id not in self.vehicle_IDs_in_simulation and vehicle_id in self.controlled_vehicles:
                     self.vehicle_IDs_in_simulation.append(vehicle_id)
                     traci.vehicle.setColor(vehicle_id, (255, 0, 0)) # set color so we can visually track controlled vehicles
@@ -126,7 +126,7 @@ class SumoEnv:
                         # print("action: " + act)
                         if act not in connection_info.outgoing_edges_dict[current_edge]:
                             print("Impossible turns made for vehicle #" + str(vehicle_id) + " : " + act + " @ " + str(current_edge))
-                            rewards[str(vehicle_id)] -= 10000
+                            rewards[str(vehicle_id)] -= 5000
                             continue
                         
                         # print("Choice for " + str(current_edge) + " is: " + act)
@@ -174,6 +174,7 @@ class SumoEnv:
         states = {}
         arrived_at_destination = traci.simulation.getArrivedIDList()
         arrived_list = list(arrived_at_destination)
+        # print(" ")
         # print(next_vehicle_ids)
         for vehicle_id in next_vehicle_ids:
             
@@ -184,15 +185,20 @@ class SumoEnv:
                 state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename, positions)
 
                 states[(vehicle_id)] = (state_temp) 
-            if str(current_edge) not in self.connection_info.edge_index_dict.keys():
-                rewards[vehicle_id] -= -1000
+            
+            net = sumolib.net.readNet(connection_info.net_filename)
+            dest_coord = net.getEdge(self.controlled_vehicles[vehicle_id].destination).getShape()
+            dest_coord = dest_coord[len(dest_coord) - 1]
+            distance = self.calc_distance(traci.vehicle.getPosition(vehicle_id), dest_coord)
+            
+            if (current_edge) not in self.connection_info.edge_index_dict.keys():
                 continue
             elif current_edge == self.controlled_vehicles[vehicle_id].destination:
                 print("BNROO")
                 print(current_edge)
                 print(self.controlled_vehicles[vehicle_id].destination)
+                ind_reward += distance * 0.6
                 # arrived_list.append(vehicle_id)
-                continue
             #Distributing rewards
             # if (traci.vehicle.getAccumulatedWaitingTime(vehicle_id) > 30):
             #     rewards[int(vehicle_id)] -= traci.vehicle.getAccumulatedWaitingTime(vehicle_id) * 0.6
@@ -205,11 +211,8 @@ class SumoEnv:
                     ind_reward -= (ts - 200) * 0.8
                 elif (ts > 150):
                     ind_reward -= (ts - 150) * 0.4
-            net = sumolib.net.readNet(connection_info.net_filename)
-            dest_coord = net.getEdge(self.controlled_vehicles[vehicle_id].destination).getShape()
-            dest_coord = dest_coord[len(dest_coord) - 1]
-            distance = self.calc_distance(traci.vehicle.getPosition(vehicle_id), dest_coord)
-            if distance < 25:
+            
+            if distance < 50:
                 ind_reward += (250-distance) * 0.15
             elif (distance < 100):
                 ind_reward += (250 - distance) * 0.1
@@ -217,8 +220,11 @@ class SumoEnv:
                 ind_reward += (250 - distance) * 0.07
             else:
                 ind_reward += (250 - distance) * 0.05
-
-            rewards[vehicle_id] -= ind_reward
+            # print(vehicle_id)
+            # print("rewards ", rewards[vehicle_id])
+            # print("ind_reward: ", ind_reward)
+            # rewards[vehicle_id] += ind_reward
+            # print("rewards after", rewards[vehicle_id])
         # print("arrived_at_destination", arrived_at_destination)
         # print("arrived_list", arrived_list)
         for vehicle_id in arrived_list:
@@ -241,7 +247,7 @@ class SumoEnv:
                     if (time_span < 40):
                         rewards[vehicle_id] -= 5000 /(time_span * 0.3)
                     else:
-                        rewards[vehicle_id] -=  1000 /(time_span * 0.3)
+                        rewards[vehicle_id] -=  5000 /(time_span * 0.1)
                 self.total_time += time_span
                 miss = False
                 if self.step > self.controlled_vehicles[vehicle_id].deadline:

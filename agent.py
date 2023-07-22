@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 from collections import deque
 
-from numba import jit, cuda
+# from numba import jit, cuda
 import random
 
 class Agent:
@@ -141,11 +141,11 @@ class Agent:
                 #reset the counter
                 self.counterUpdateTargetNetwork = 0
             
-            if len(self.replayBuffer) > 200:
-                for _ in range(2):
-                    self.replayBuffer.popleft()
+            #to reduce time constraints
+            for _ in range(15):
+                self.replayBuffer.popleft()
 
-            if episode > 100 and self.epsilon > self.epsilon_min:
+            if episode > 75  and self.epsilon > self.epsilon_min:
                 self.epsilon *= self.epsilon_decay
             # WITHOUT REPLAY
             # # print(" ")
