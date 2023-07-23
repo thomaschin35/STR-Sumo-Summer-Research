@@ -62,7 +62,7 @@ class Agent:
                 arr = self.generate_random_array(len(states))#2D arrow of vehicles, and random decision
                 state_vals = state_vals.reshape(arr.shape)
                 arr = arr - 10000 * (1-state_vals)
-                return arr
+                return(np.argmax(arr, axis=1))
             # GREEDY ACTIONS
             # print("actually predicting")
             act_values = self.main_model.predict(states_temp, verbose=0)
@@ -71,7 +71,7 @@ class Agent:
             #act values   
             #(#vehicles, 6 columns)
             # return np.argmax(act_values[0])
-            return mod_values
+            return np.argmax(mod_values, axis=1)
         else:
             return {}
     # @jit(target_backend='cuda')
@@ -130,8 +130,7 @@ class Agent:
                     # print( np.amax(predicted_next, axis=1))
                     target = (list(reward.values()) + self.gamma * np.amax(predicted_next, axis=1))
                 for j in range(len(action)):
-                    action_index = np.argmax(action[j]) #getting the index(direction) with the highest number (the action it just performed)
-                    predicted_current[j, action_index] = target[j] #for each vehicle, assigning the target value to the highest number index- basically making the q value lower 
+                    predicted_current[j, action[j]] = target[j] #for each vehicle, assigning the target value to the highest number index- basically making the q value lower 
                 max_q_values_i = np.argmax(predicted_current, axis=1)
                 outputNetwork = np.append(outputNetwork, max_q_values_i)
                     #1D list of Target Q values that represent each row in sequence
@@ -150,7 +149,7 @@ class Agent:
                 self.counterUpdateTargetNetwork = 0
             
             #to reduce time constraints
-            for _ in range(20):
+            for _ in range(15):
                 self.replayBuffer.popleft()
 
             if episode > 50  and self.epsilon > self.epsilon_min:

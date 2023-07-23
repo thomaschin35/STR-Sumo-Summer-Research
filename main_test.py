@@ -8,7 +8,7 @@ env_train = se.SumoEnv(10, gui = False)
 env_test = se.SumoEnv(10, gui = False)
 
 max_episodes = 750
-max_steps = 500
+max_steps = 350
 num_actions = 6
 num_vehicles = 10
 
@@ -23,12 +23,12 @@ for episode in range(max_episodes):
     overall_reward = {}
     for step in range(max_steps):
         #select Action
-        # print("states ", state
+        # print("states ", states)
        
         actions = agent.act(states, episode)
         # print("actions",actions)
         #take a step and return state, reward, done
-        next_states, rewards, done, arrived_list= env_train.step_d(actions, rewards)
+        next_states, rewards, done, to_direct_vehicles= env_train.step_d(actions, rewards, states)
         #adding to replay buffer - tuple= (S, A, R, S_, T)
         # print(type(rewards))
         # print(rewards)
@@ -41,9 +41,10 @@ for episode in range(max_episodes):
         agent.train(episode)
         # print("trained")
         # print("arrived list: ", arrived_list)
-        for vid in arrived_list:
-            # print("poppin, ", vid)
-            next_states.pop(vid)
+
+        for vid in states:
+            if vid not in to_direct_vehicles:
+                next_states.pop(vid)
         states = next_states
         if done:
             break
