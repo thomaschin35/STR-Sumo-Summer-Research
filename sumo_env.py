@@ -51,6 +51,7 @@ class SumoEnv:
         self.total_time = 0
         self.step = 0
         self.current_edges = {}
+        self.positions = {}
         self.number_vehicles = number_of_vehicles
         
 
@@ -71,7 +72,6 @@ class SumoEnv:
         # states = np.zeros((self.number_vehicles, (len(self.connection_info.edge_list) + 9)), dtype=np.float32)
         connection_info = self.connection_info
         threshold_traffic = 0.5
-        positions = {}
         if (len(action) != 0): 
             action = np.squeeze(action)
             vehicle_ids = set(traci.vehicle.getIDList()) #ids are 0-9
@@ -99,7 +99,7 @@ class SumoEnv:
                 if vehicle_id in self.controlled_vehicles.keys():
                     current_edge = traci.vehicle.getRoadID(vehicle_id)
                     self.current_edges[str(vehicle_id)] = current_edge
-                    positions[str(vehicle_id)] = traci.vehicle.getPosition(vehicle_id)
+                    self.positions[str(vehicle_id)] = traci.vehicle.getPosition(vehicle_id)
                     #adding the state of the vehicle
                     # print("current_edge: " + current_edge)
 
@@ -122,7 +122,7 @@ class SumoEnv:
                         # print("ACTION BEFORE MAKING ACTION", action)
                         act = self.direction_choices[np.argmax(action[i])] #a direction - s,L,R
 
-                        i += 1
+                        
                         # print("action: " + act)
                         if act not in connection_info.outgoing_edges_dict[current_edge]:
                             print("Impossible turns made for vehicle #" + str(vehicle_id) + " : " + act + " @ " + str(current_edge))
@@ -140,6 +140,7 @@ class SumoEnv:
                         # print("before local targets")
                         # print(RouteController.compute_local_target(self, decision_list=decision_list, vehicle=self.controlled_vehicles[str(vehicle_id)]))
                         local_targets[vehicle_id] = RouteController.compute_local_target(self, decision_list=decision_list, vehicle=self.controlled_vehicles[str(vehicle_id)])
+                    i += 1
 
             for vehicle_id, local_target_edge in local_targets.items():
                 if str(vehicle_id) in traci.vehicle.getIDList():
@@ -182,48 +183,52 @@ class SumoEnv:
             if vehicle_id in self.controlled_vehicles.keys():
                 current_edge = traci.vehicle.getRoadID(vehicle_id)
                 #grabbing states of vehicles in the simulation in next step
-                state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename, positions)
-
+                state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename, self.positions)
                 states[(vehicle_id)] = (state_temp) 
-            
-            net = sumolib.net.readNet(connection_info.net_filename)
-            dest_coord = net.getEdge(self.controlled_vehicles[vehicle_id].destination).getShape()
-            dest_coord = dest_coord[len(dest_coord) - 1]
-            distance = self.calc_distance(traci.vehicle.getPosition(vehicle_id), dest_coord)
-            
-            if (current_edge) not in self.connection_info.edge_index_dict.keys():
-                continue
-            elif current_edge == self.controlled_vehicles[vehicle_id].destination:
-                print("BNROO")
-                print(current_edge)
-                print(self.controlled_vehicles[vehicle_id].destination)
-                ind_reward += distance * 0.6
-                # arrived_list.append(vehicle_id)
-            #Distributing rewards
-            # if (traci.vehicle.getAccumulatedWaitingTime(vehicle_id) > 30):
-            #     rewards[int(vehicle_id)] -= traci.vehicle.getAccumulatedWaitingTime(vehicle_id) * 0.6
-            # elif traci.vehicle.getAccumulatedWaitingTime(vehicle_id) > 10:
-            #     rewards[int(vehicle_id)] -= traci.vehicle.getAccumulatedWaitingTime(vehicle_id) * 0.3
-            # print(vehicle_id)
-            ts = self.step - int(float(self.controlled_vehicles[vehicle_id].start_time))
-            if vehicle_id not in arrived_at_destination :
-                if (ts > 200):
-                    ind_reward -= (ts - 200) * 0.8
-                elif (ts > 150):
-                    ind_reward -= (ts - 150) * 0.4
-            
-            if distance < 50:
-                ind_reward += (250-distance) * 0.15
-            elif (distance < 100):
-                ind_reward += (250 - distance) * 0.1
-            elif distance < 250:
-                ind_reward += (250 - distance) * 0.07
-            else:
-                ind_reward += (250 - distance) * 0.05
-            # print(vehicle_id)
-            # print("rewards ", rewards[vehicle_id])
-            # print("ind_reward: ", ind_reward)
-            # rewards[vehicle_id] += ind_reward
+
+                net = sumolib.net.readNet(connection_info.net_filename)
+                dest_coord = net.getEdge(self.controlled_vehicles[vehicle_id].destination).getShape()
+                dest_coord = dest_coord[len(dest_coord) - 1]
+                distance = self.calc_distance(traci.vehicle.getPosition(vehicle_id), dest_coord)
+                
+                if (current_edge) not in self.connection_info.edge_index_dict.keys():
+                    continue
+                elif current_edge == self.controlled_vehicles[vehicle_id].destination:
+                    print("Approaching! ")
+                    print(current_edge)
+                    print(self.controlled_vehicles[vehicle_id].destination)
+                    ind_reward += distance * 0.6
+                    # arrived_list.append(vehicle_id)
+                # if current_edge != self.controlled_vehicles[vehicle_id].current_edge:
+                #Distributing rewards
+                # if (traci.vehicle.getAccumulatedWaitingTime(vehicle_id) > 30):
+                #     rewards[int(vehicle_id)] -= traci.vehicle.getAccumulatedWaitingTime(vehicle_id) * 0.6
+                # elif traci.vehicle.getAccumulatedWaitingTime(vehicle_id) > 10:
+                #     rewards[int(vehicle_id)] -= traci.vehicle.getAccumulatedWaitingTime(vehicle_id) * 0.3
+                # print(vehicle_id)
+                # if current_edge != self.controlled_vehicles[vehicle_id].current_edge:
+                    #next state only grab the states that are need rewards
+
+                
+                ts = self.step - int(float(self.controlled_vehicles[vehicle_id].start_time))
+                if vehicle_id not in arrived_at_destination :
+                    if (ts > 200):
+                        ind_reward -= (ts - 200) * 0.8
+                    elif (ts > 150):
+                        ind_reward -= (ts - 150) * 0.4
+                
+                if distance < 50:
+                    ind_reward += (250-distance) * 0.15
+                elif (distance < 100):
+                    ind_reward += (250 - distance) * 0.1
+                elif distance < 250:
+                    ind_reward += (250 - distance) * 0.07
+                else:
+                    ind_reward += (250 - distance) * 0.05
+                # print(vehicle_id)
+                # print("rewards ", rewards[vehicle_id])
+                # print("ind_reward: ", ind_reward)
+                rewards[vehicle_id] += ind_reward
             # print("rewards after", rewards[vehicle_id])
         # print("arrived_at_destination", arrived_at_destination)
         # print("arrived_list", arrived_list)
@@ -233,16 +238,16 @@ class SumoEnv:
                 #     rewards[vehicle_id] = 0
                 current_edge = self.current_edges[vehicle_id]
                 #grabbing states of vehicles in the simulation in next step
-                state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename, positions)
+                state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename, self.positions)
                 states[(vehicle_id)] = (state_temp) 
-            
+
                 # state_temp = self.get_state(vehicle_id, current_edge, self.controlled_vehicles[vehicle_id].destination, connection_info.net_filename)
                 #print the raw result out to the terminal
                 time_span = self.step - self.controlled_vehicles[vehicle_id].start_time
                 arrived = False
                 if self.controlled_vehicles[vehicle_id].local_destination == self.controlled_vehicles[vehicle_id].destination:
                     arrived = True   
-                    rewards[vehicle_id] += 10000 
+                    rewards[vehicle_id] += 10000 / (time_span * 0.1)
                 if not arrived: 
                     if (time_span < 40):
                         rewards[vehicle_id] -= 5000 /(time_span * 0.3)

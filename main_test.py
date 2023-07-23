@@ -23,19 +23,26 @@ for episode in range(max_episodes):
     overall_reward = {}
     for step in range(max_steps):
         #select Action
+        # print("states ", state
+       
         actions = agent.act(states, episode)
+        # print("actions",actions)
         #take a step and return state, reward, done
         next_states, rewards, done, arrived_list= env_train.step_d(actions, rewards)
         #adding to replay buffer - tuple= (S, A, R, S_, T)
         # print(type(rewards))
         # print(rewards)
         if len(states) != 0 and len(next_states) != 0:
+            # print("before adding to buffer")
+            # print(states)
+            # print(next_states)
             agent.replayBuffer.append((states.copy(), actions, rewards.copy(), next_states.copy(), done)) 
 
         agent.train(episode)
         # print("trained")
         # print("arrived list: ", arrived_list)
         for vid in arrived_list:
+            # print("poppin, ", vid)
             next_states.pop(vid)
         states = next_states
         if done:

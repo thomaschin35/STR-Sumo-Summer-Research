@@ -9,12 +9,12 @@ import random
 class Agent:
     def __init__(self, state_size, action_size, number_of_vehicles):
         self.gamma = 0.9
-        self.epsilon = 1.0
-        self.epsilon_decay = 0.99995
+        self.epsilon = 0.995
+        self.epsilon_decay = 0.99992
         self.epsilon_min = 0.01
         self.learning_rate = 0.001
         
-        self.replayBufferSize = 300
+        self.replayBufferSize = 300 #CHANGE BACJK
         self.batchReplayBufferSize = 100
         self.replayBuffer=deque(maxlen=self.replayBufferSize)
         # number of training episodes it takes to update the target network parameters
@@ -58,7 +58,7 @@ class Agent:
             states_temp = np.array(list(states.values()), dtype=np.float32)
             state_vals = states_temp[: , index ] # [1,0,1,1,0,0]
             #EPSILON EXPLORATION APPROACH
-            if eps < 4 or np.random.rand() <= self.epsilon: 
+            if eps < 10 or np.random.rand() <= self.epsilon: 
                 arr = self.generate_random_array(len(states))#2D arrow of vehicles, and random decision
                 state_vals = state_vals.reshape(arr.shape)
                 arr = arr - 10000 * (1-state_vals)
@@ -93,14 +93,20 @@ class Agent:
             for index, (state, action, reward, next_state, done) in enumerate(randomSampleBatch):
 
                 #updating reward size and next_state size
+                # print("checking! ")
+                # print(state)
+                # print(reward)
+                # print(next_state)   
                 keys_to_remove = [key for key in reward if key not in state]
                 for key in keys_to_remove:
+                    # print("removing", key)
                     reward.pop(key)
 
                 keys_to_remove = [key for key in next_state if key not in reward]
                 for key in keys_to_remove:
                     next_state.pop(key)
                 currentStateBatch = np.append(currentStateBatch, np.array(list(state.values()), dtype=np.float32), axis=0)
+                # print("NSB", nextStateBatch)
                 nextStateBatch = np.append(nextStateBatch, np.array(list(next_state.values()), dtype=np.float32), axis=0)
 
             currentStateBatch = currentStateBatch[1:]
@@ -120,6 +126,8 @@ class Agent:
                 if done:
                     target = list(reward.values())
                 else:
+                    # print(reward.values())
+                    # print( np.amax(predicted_next, axis=1))
                     target = (list(reward.values()) + self.gamma * np.amax(predicted_next, axis=1))
                 for j in range(len(action)):
                     action_index = np.argmax(action[j]) #getting the index(direction) with the highest number (the action it just performed)
@@ -142,10 +150,10 @@ class Agent:
                 self.counterUpdateTargetNetwork = 0
             
             #to reduce time constraints
-            for _ in range(15):
+            for _ in range(20):
                 self.replayBuffer.popleft()
 
-            if episode > 75  and self.epsilon > self.epsilon_min:
+            if episode > 50  and self.epsilon > self.epsilon_min:
                 self.epsilon *= self.epsilon_decay
             # WITHOUT REPLAY
             # # print(" ")
