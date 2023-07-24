@@ -123,6 +123,7 @@ class SumoEnv:
                         vehicle_id = int(vehicle_id)
 
                         # print("ACTIOn", action)
+                        
                         act = self.direction_choices[(action[i])] #a direction - s,L,R
                         i += 1          
                         
@@ -227,19 +228,18 @@ class SumoEnv:
                 
                 if distance < 50:
                     ind_reward += (250-distance) * 0.15
-                elif (distance < 100):
-                    ind_reward += (250 - distance) * 0.1
-                elif distance < 250:
-                    ind_reward += (250 - distance) * 0.07
-                else:
-                    ind_reward += (250 - distance) * 0.05
+                # elif (distance < 100):
+                #     ind_reward += (250 - distance) * 0.1
+                # elif distance < 250:
+                #     ind_reward += (250 - distance) * 0.07
+                # else:
+                #     ind_reward += (250 - distance) * 0.05
                 # print(vehicle_id)
                 # print("rewards ", rewards[vehicle_id])
                 # print("ind_reward: ", ind_reward)
                 rewards[vehicle_id] += ind_reward
             # print("rewards after", rewards[vehicle_id])
         # print("arrived_at_destination", arrived_at_destination)
-        # print("arrived_list", arrived_list)
         for vehicle_id in arrived_list:
             # print("arrived in the next step", vehicle_id)
             if vehicle_id in self.controlled_vehicles:
@@ -258,7 +258,7 @@ class SumoEnv:
                 arrived = False
                 if self.controlled_vehicles[vehicle_id].local_destination == self.controlled_vehicles[vehicle_id].destination:
                     arrived = True   
-                    rewards[vehicle_id] += 20000 / (time_span * 0.1)
+                    rewards[vehicle_id] += 40000 / (time_span * 0.05)
                 if not arrived: 
                     if (time_span < 40):
                         rewards[vehicle_id] -= 5000 /(time_span * 0.3)
@@ -277,7 +277,7 @@ class SumoEnv:
         if traci.simulation.getMinExpectedNumber() == 0:
             done = True
         # print("printing states before finish with one step", states)
-        return states, rewards, done, to_direct_vehicles
+        return states, rewards, done, to_direct_vehicles, len(arrived_list)==0
         # return next_state, reward, done, rewards 
 
     def reset(self):

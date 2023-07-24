@@ -28,7 +28,7 @@ for episode in range(max_episodes):
         actions = agent.act(states, episode)
         # print("actions",actions)
         #take a step and return state, reward, done
-        next_states, rewards, done, to_direct_vehicles= env_train.step_d(actions, rewards, states)
+        next_states, rewards, done, to_direct_vehicles, arrived = env_train.step_d(actions, rewards, states)
         #adding to replay buffer - tuple= (S, A, R, S_, T)
         # print(type(rewards))
         # print(rewards)
@@ -37,6 +37,8 @@ for episode in range(max_episodes):
             # print(states)
             # print(next_states)
             agent.replayBuffer.append((states.copy(), actions, rewards.copy(), next_states.copy(), done)) 
+            if (arrived):
+                agent.arrivedBuffer.append((states.copy(), actions, rewards.copy(), next_states.copy(), done))
 
         agent.train(episode)
         # print("trained")
@@ -78,15 +80,15 @@ plt.show()
 
 headers = ['Episode', 'Average Reward'] #11
 
-with open('./Data/qlearning_training_results.csv', 'w', newline='') as f:
+with open('./Data/qlearning_training_results3.csv', 'w', newline='') as f:
     write = csv.writer(f)
     write.writerow(headers)
     for episode, rew in zip(eps, rewards_history):
         write.writerow([episode, rew])
     f.flush()
 print("data written to CSV file")
-agent.main_model.save("trained_model_1.h5")
-agent.target_model.save("target_model_1.h5")
+agent.main_model.save("trained_model_3.h5")
+agent.target_model.save("target_model_3.h5")
 
 
 

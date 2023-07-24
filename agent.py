@@ -9,17 +9,18 @@ import random
 class Agent:
     def __init__(self, state_size, action_size, number_of_vehicles):
         self.gamma = 0.9
-        self.epsilon = 0.995
-        self.epsilon_decay = 0.99992
+        self.epsilon = 0.99
+        self.epsilon_decay = 0.999
         self.epsilon_min = 0.01
         self.learning_rate = 0.001
         
         self.replayBufferSize = 300 #CHANGE BACJK
-        self.batchReplayBufferSize = 100
+        self.batchReplayBufferSize = 150
         self.replayBuffer=deque(maxlen=self.replayBufferSize)
+        self.arrivedBuffer = deque(maxlen=10)
         # number of training episodes it takes to update the target network parameters
         # that is, every updateTargetNetworkPeriod we update the target network parameters
-        self.updateTargetNetworkPeriod = 100
+        self.updateTargetNetworkPeriod = 50
         self.counterUpdateTargetNetwork = 0
 
         self.number_of_vehicles = number_of_vehicles #change with experiment
@@ -27,6 +28,7 @@ class Agent:
         self.state_size = state_size
         self.action_size = action_size
 
+        # self.main_model = keras.models.load_model("trained_model_1.h5")
         self.main_model = self.build_model()
         self.target_model = self.build_model()
         self.target_model.set_weights(self.main_model.get_weights())
@@ -47,7 +49,7 @@ class Agent:
         main_model.add(keras.layers.Dense(700,activation='relu', name="dense_4"))
         #output
         main_model.add(keras.layers.Dense(6, activation='softmax', name="dense_5")) 
-        opt = keras.optimizers.RMSprop(learning_rate=self.learning_rate, momentum=0.9)
+        opt = keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9)
         main_model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return main_model
     # @jit(target_backend='cuda')
@@ -75,7 +77,7 @@ class Agent:
         else:
             return {}
     # @jit(target_backend='cuda')
-    def train(self,episode):
+    def train(self,episode ):
         #State/nextstate = Dict, {vid: "state"}
         #action = 2d array (#vehicles, 6 columns. probability that they pick the direction)
         #reward =  Dict {vid: "reward"}
@@ -86,6 +88,8 @@ class Agent:
 
             # print("training!")
             randomSampleBatch = random.sample(self.replayBuffer, self.batchReplayBufferSize)
+            # randomSampleBatch.append(random.sample(self.arrivedBuffer, 10))
+            randomSampleBatch.extend(self.arrivedBuffer)
             currentStateBatch = [np.zeros(self.state_size)]
             #(index: state values)
             nextStateBatch = [np.zeros(self.state_size)]
@@ -127,8 +131,10 @@ class Agent:
                     target = list(reward.values())
                 else:
                     # print(reward.values())
+                    # print(predicted_next)
                     # print( np.amax(predicted_next, axis=1))
                     target = (list(reward.values()) + self.gamma * np.amax(predicted_next, axis=1))
+                    # print("target", target)
                 for j in range(len(action)):
                     predicted_current[j, action[j]] = target[j] #for each vehicle, assigning the target value to the highest number index- basically making the q value lower 
                 max_q_values_i = np.argmax(predicted_current, axis=1)
@@ -152,7 +158,7 @@ class Agent:
             for _ in range(15):
                 self.replayBuffer.popleft()
 
-            if episode > 50  and self.epsilon > self.epsilon_min:
+            if episode > 5  and self.epsilon > self.epsilon_min:
                 self.epsilon *= self.epsilon_decay
             # WITHOUT REPLAY
             # # print(" ")
@@ -206,4 +212,3 @@ class Agent:
         return arr
 
     
-
