@@ -315,7 +315,14 @@ class SumoEnv:
 
         state.append(self.connection_info.edge_index_dict[en]) # current edge index
         state.append(self.connection_info.edge_index_dict[destination]) # final location
+        #NEW
+        state.append(position[0])
+        state.append(position[1])
+        state.append(end_destination_pos[0])
+        state.append(end_destination_pos[1])
+        #
         state.append(self.calc_distance(position, end_destination_pos)) # distance between current edge and final destination
+
         # state.append()
         for c in self.direction_choices:
             if c in self.connection_info.outgoing_edges_dict[en].keys():
@@ -325,10 +332,10 @@ class SumoEnv:
                 state.append(0)
                 # 0 means this action cannot be chosen.
         # put the congestion ratio of all edges into the state.
-        for edge in self.connection_info.edge_list:
-            car_num = traci.edge.getLastStepVehicleNumber(edge)
-            density = car_num / self.connection_info.edge_length_dict[edge]
-            state.append(density)
+        # for edge in self.connection_info.edge_list:
+        #     car_num = traci.edge.getLastStepVehicleNumber(edge)
+        #     density = car_num / self.connection_info.edge_length_dict[edge]
+        #     state.append(density)
 
         # state = np.reshape(state, [1, len(state)]) #2D array with 1 row and as many columns as state
         #state = [[edge index, 1, 0 ,0 ,1, 1, 1, density, ... (density of every other edge)]

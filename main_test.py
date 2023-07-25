@@ -12,7 +12,8 @@ max_steps = 350
 num_actions = 6
 num_vehicles = 10
 
-state_shape = len(env_train.connection_info.edge_list) + 9
+# state_shape = len(env_train.connection_info.edge_list) + 9
+state_shape = 13
 agent = ag.Agent(state_shape, num_actions, num_vehicles)
 rewards_history = []
 for episode in range(max_episodes):

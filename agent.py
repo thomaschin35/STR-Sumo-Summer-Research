@@ -8,19 +8,19 @@ import random
 
 class Agent:
     def __init__(self, state_size, action_size, number_of_vehicles):
-        self.gamma = 0.9
+        self.gamma = 0.99
         self.epsilon = 0.99
         self.epsilon_decay = 0.999
-        self.epsilon_min = 0.01
+        self.epsilon_min = 0.05
         self.learning_rate = 0.001
         
-        self.replayBufferSize = 300 #CHANGE BACJK
-        self.batchReplayBufferSize = 150
+        self.replayBufferSize = 1000 #CHANGE BACJK
+        self.batchReplayBufferSize = 300
         self.replayBuffer=deque(maxlen=self.replayBufferSize)
-        self.arrivedBuffer = deque(maxlen=10)
+        self.arrivedBuffer = deque(maxlen=50)
         # number of training episodes it takes to update the target network parameters
         # that is, every updateTargetNetworkPeriod we update the target network parameters
-        self.updateTargetNetworkPeriod = 50
+        self.updateTargetNetworkPeriod = 300
         self.counterUpdateTargetNetwork = 0
 
         self.number_of_vehicles = number_of_vehicles #change with experiment
@@ -42,21 +42,22 @@ class Agent:
         main_model.add(keras.layers.Dense(64, input_shape=(self.state_size, ), name="dense_1"))
         #hidden layers
         main_model.add(keras.layers.BatchNormalization())
-        main_model.add(keras.layers.Dense(700, activation='relu', name="dense_2"))
-        main_model.add(keras.layers.LeakyReLU(700))
-        main_model.add(keras.layers.Dense(700, activation='relu', name="dense_3"))
-        main_model.add(keras.layers.LeakyReLU(700))
-        main_model.add(keras.layers.Dense(700,activation='relu', name="dense_4"))
+        main_model.add(keras.layers.Dense(150, activation='relu', name="dense_2"))
+        # main_model.add(keras.layers.LeakyReLU(700))
+        main_model.add(keras.layers.Dense(100, activation='relu', name="dense_3"))
+        # main_model.add(keras.layers.LeakyReLU(700))
+        main_model.add(keras.layers.Dense(100,activation='relu', name="dense_4"))
+        main_model.add(keras.layers.Dropout(rate=0.2))
         #output
         main_model.add(keras.layers.Dense(6, activation='softmax', name="dense_5")) 
-        opt = keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9)
+        opt = keras.optimizers.Adam(learning_rate=self.learning_rate, ema_momentum=0.9)
         main_model.compile(optimizer=opt, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         return main_model
     # @jit(target_backend='cuda')
-    def act(self, states, eps):
+    def act(self, states, eps): 
         
         if (states):
-            index = [np.arange(3,9)]
+            index = [np.arange(7,13)]
             states_temp = np.array(list(states.values()), dtype=np.float32)
             state_vals = states_temp[: , index ] # [1,0,1,1,0,0]
             #EPSILON EXPLORATION APPROACH
@@ -118,6 +119,7 @@ class Agent:
 
             QcurrentStateMainModel = self.main_model.predict(currentStateBatch, verbose=0)
             QnextStateTargetModel = self.target_model.predict(nextStateBatch, verbose=0)
+            print(QcurrentStateMainModel)
 
             inputNetwork = currentStateBatch
             outputNetwork = []
@@ -144,7 +146,7 @@ class Agent:
                 k += len(list(state.values()))
             # print("input netowrk", inputNetwork)
             # print("output netowrk", outputNetwork)
-            self.main_model.fit(inputNetwork, outputNetwork, batch_size=self.batchReplayBufferSize, verbose = 0, epochs = 50)
+            self.main_model.fit(inputNetwork, outputNetwork, batch_size=self.batchReplayBufferSize, epochs = 100)
             self.counterUpdateTargetNetwork += 1
             if (self.counterUpdateTargetNetwork > (self.updateTargetNetworkPeriod - 1)):
                 #copt the weights of main to target network
